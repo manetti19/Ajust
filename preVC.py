@@ -79,6 +79,123 @@ for i in range(0, 21):
 
 print(A)
 print(b)
-print(novas_medicoes[20])
-print(novas_medicoes[20][0])
-print(A[20])
+
+AT = A.T
+
+X = np.linalg.solve(AT @ A, AT @ b)
+
+print(X)
+
+v = A @ X - b
+print(v)
+
+S = 0
+for i in range(0, 21):
+    S = S + v[i]
+
+S = S/21 #media
+print(S)
+
+std_v = np.std(v, ddof=1) # ddof=1 eh pra ser o amostral
+print(std_v)
+var_v = np.var(v) # sem esse ddof=1 nao sera o amostral
+print(var_v)
+sstdd_v = np.sqrt(var_v)
+print(sstdd_v)
+
+
+'''     eliminando outliers         precisa???
+
+for i in range(0, 21):
+    a = np.abs(v[i]) - S
+    if a > std_v:
+        print(i)
+        print(v[i])
+
+novo_v = np.delete(v, [0, 1, 18], axis=0) # esse axis=0 eliminou A LINHA, se fosse =1 seria a coluna
+print(novo_v)
+novo_vT = novo_v.T
+print(novo_vT)
+k = novo_vT @ novo_v
+print(k)
+print(novo_v.shape)
+
+
+
+
+S = 0
+for i in range(0, 18):
+    S = S + v[i]
+
+S = S/18 #media
+print(S)
+
+std_v = np.std(novo_v, ddof=1) # ddof=1 eh pra ser o amostral
+print(std_v)
+var_v = np.var(novo_v) # sem esse ddof=1 nao sera o amostral
+print(var_v)
+sstdd_v = np.sqrt(var_v)
+print(sstdd_v)
+
+for i in range(0, 18):
+    a = np.abs(novo_v[i]) - S
+    if a > std_v:
+        print(i)
+        print(novo_v[i])
+'''
+
+
+
+
+
+#chat
+
+
+# --- 1) Coeficientes do ajuste (a, b, c) ---
+a_, b_, c_ = X.flatten()                  # X é 3x1; vira 1D
+
+# --- 2) Mínimo da parábola (culminação) ---
+LH_min = -b_ / (2*a_)                     # L_H* (graus)
+LV_min = c_ - (b_**2) / (4*a_)            # L_V* (graus) = z_min
+
+# Em DMS, usando sua função:
+gH, mH, sH = graus_para_dms(LH_min)
+gV, mV, sV = graus_para_dms(LV_min)
+
+print(f"L_H* = {LH_min:.6f}°  -> {gH:02d}° {mH:02d}′ {sH:05.2f}″")
+print(f"z_min = L_V* = {LV_min:.6f}°  -> {gV:02d}° {mV:02d}′ {sV:05.2f}″")
+
+# --- 3) Resíduos e R² (qualidade do ajuste) ---
+y_hat = (A @ X).ravel()                   # valores ajustados (1D)
+y_obs = b.ravel()                         # observados (1D)
+v = y_obs - y_hat                         # resíduos (convém este sinal)
+
+RSS = np.sum(v**2)                        # soma dos quadrados dos resíduos
+TSS = np.sum((y_obs - y_obs.mean())**2)   # soma total dos quadrados
+R2  = 1 - RSS/TSS
+
+print(f"R² = {R2:.6f}")
+print(f"RMSE ≈ {np.sqrt(RSS/(len(y_obs)-3)):.6f} grau")
+
+# --- 4) Estatística simples dos resíduos (1D) ---
+print(f"média(v) = {v.mean():.6e} grau")
+print(f"std amostral(v) = {np.std(v, ddof=1):.6e} grau")
+
+# --- 5) (Opcional) Incertezas de L_H* e L_V* via propagação ---
+ATA_inv = np.linalg.inv(A.T @ A)          # (3x3)
+sigma2 = RSS / (len(y_obs) - 3)           # variância residual
+Cov = sigma2 * ATA_inv                    # cov(a,b,c)
+
+dx_da =  b_ / (2*a_**2)
+dx_db = -1 / (2*a_)
+Jx = np.array([dx_da, dx_db, 0.0])
+sx = np.sqrt(Jx @ Cov @ Jx)               # σ(L_H*)
+
+dy_da =  (b_**2) / (4*a_**2)
+dy_db = -b_ / (2*a_)
+dy_dc =  1.0
+Jy = np.array([dy_da, dy_db, dy_dc])
+sy = np.sqrt(Jy @ Cov @ Jy)               # σ(L_V*) = σ(z_min)
+
+print(f"σ(L_H*) = {sx:.6f}°  ({sx*60:.3f}′; {sx*3600:.2f}″)")
+print(f"σ(z_min) = {sy:.6f}°  ({sy*60:.3f}′; {sy*3600:.2f}″)")
