@@ -84,6 +84,9 @@ AT = A.T
 
 X = np.linalg.solve(AT @ A, AT @ b)
 
+
+
+'''
 print(X)
 
 v = A @ X - b
@@ -104,7 +107,7 @@ sstdd_v = np.sqrt(var_v)
 print(sstdd_v)
 
 
-'''     eliminando outliers         precisa???
+                  eliminando outliers         precisa???
 
 for i in range(0, 21):
     a = np.abs(v[i]) - S
@@ -119,7 +122,6 @@ print(novo_vT)
 k = novo_vT @ novo_v
 print(k)
 print(novo_v.shape)
-
 
 
 
@@ -147,24 +149,25 @@ for i in range(0, 18):
 
 
 
-
-#chat
-
-
-# --- 1) Coeficientes do ajuste (a, b, c) ---
+# Coeficientes do ajuste (a, b, c)
 a_, b_, c_ = X.flatten()                  # X é 3x1; vira 1D
 
-# --- 2) Mínimo da parábola (culminação) ---
-LH_min = -b_ / (2*a_)                     # L_H* (graus)
-LV_min = c_ - (b_**2) / (4*a_)            # L_V* (graus) = z_min
+print(f"Parametros da parabola: a = {a_:.6f}, b = {b_:.6f}, c = {c_:.6f}")
 
-# Em DMS, usando sua função:
+# Mínimo da parábola (culminação)
+LH_min = -b_ / (2*a_)
+LV_min = c_ - (b_**2) / (4*a_)
+
+
 gH, mH, sH = graus_para_dms(LH_min)
 gV, mV, sV = graus_para_dms(LV_min)
 
 print(f"L_H* = {LH_min:.6f}°  -> {gH:02d}° {mH:02d}′ {sH:05.2f}″")
 print(f"z_min = L_V* = {LV_min:.6f}°  -> {gV:02d}° {mV:02d}′ {sV:05.2f}″")
 
+
+
+'''        isso eh do chat
 # --- 3) Resíduos e R² (qualidade do ajuste) ---
 y_hat = (A @ X).ravel()                   # valores ajustados (1D)
 y_obs = b.ravel()                         # observados (1D)
@@ -199,3 +202,4 @@ sy = np.sqrt(Jy @ Cov @ Jy)               # σ(L_V*) = σ(z_min)
 
 print(f"σ(L_H*) = {sx:.6f}°  ({sx*60:.3f}′; {sx*3600:.2f}″)")
 print(f"σ(z_min) = {sy:.6f}°  ({sy*60:.3f}′; {sy*3600:.2f}″)")
+'''
