@@ -38,6 +38,10 @@ def graus_para_dms(dd):
     g *= sinal
     return g, m, s
 
+
+
+
+'''             teste
 # Supondo a lista 'medicoes' já definida como:
 # medicoes = [(n, (Hg,Hm,Hs), (Vg,Vm,Vs)), ...]
 
@@ -57,6 +61,10 @@ def graus_para_dms(dd):
 # idx = 13 - 1
 # b = medicoes[idx][1]   -> (67, 31, 57.0)
 # print(b)
+'''
+
+
+
 
 novas_medicoes = np.zeros((21, 3), dtype=float)  # 21 linhas, 3 colunas de zeros
 
@@ -77,8 +85,8 @@ for i in range(0, 21):
     A[i][2] = 1
     b[i] = novas_medicoes[i][2]
 
-print(A)
-print(b)
+# print(A)
+# print(b)
 
 AT = A.T
 
