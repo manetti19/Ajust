@@ -149,11 +149,11 @@ Lb = np.zeros(8)
 Lb[0::2] = pontos[:, 0]  # X1, X2, ...
 Lb[1::2] = pontos[:, 1]  # Y1, Y2, ...
 La = Lb.copy()
-Vfinal = np.zeros(8)
+Vfinal = np.zeros(8, dtype=float)
 
 wX = 1/sigma_x2
 wY = 1/sigma_y2
-w_inter = np.zeros(8)
+w_inter = np.zeros(8, dtype=float)
 w_inter[0::2] = wX      # X1, X2, X3, X4
 w_inter[1::2] = wY      # Y1, Y2, Y3, Y4
 P = np.diag(w_inter)
@@ -205,8 +205,8 @@ while erro > tol and iteracao < max_iter:
         B[i, 2*i] = 2*(Xn - Xc)   # dF/dXn
         B[i, 2*i+1] = 2*(Yn - Yc) # dF/dYn
     
-
-    M = B @ np.linalg.solve(P, B.T)
+    PinvBT = np.linalg.solve(P, B.T)
+    M = B @ PinvBT
     '''M = np.array([
     [41600.,     0.,     0.,     0.],
     [    0., 74000.,     0.,     0.],
@@ -214,8 +214,15 @@ while erro > tol and iteracao < max_iter:
     [    0.,     0.,     0., 83200.]], dtype=float)'''
 
     #print(M)
-    delta_X = -np.linalg.solve(A.T @ np.linalg.solve(M, A), A.T @ np.linalg.solve(M, W))
+    MinvA = np.linalg.solve(M, A)
+    MinvW = np.linalg.solve(M, W)
+
+    N = A.T @ MinvA
+    u = A.T @ MinvW
+    delta_X = -np.linalg.solve(N, u)
+
     delta_Xfinal += delta_X
+    X_params += delta_X
 
 
     K = -np.linalg.solve(M, A @ delta_X + W)
@@ -224,7 +231,6 @@ while erro > tol and iteracao < max_iter:
     
     Vfinal += V
     La += V
-    X_params += delta_X
     
     # Erro para critério de convergência
     erro = np.linalg.norm(delta_X)
