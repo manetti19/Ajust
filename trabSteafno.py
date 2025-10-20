@@ -46,10 +46,13 @@ iteracao = 0
 def F_n(Xc, Yc, r, Xn, Yn):
     return (Xn - Xc)**2 + (Yn - Yc)**2 - r**2
 
+
+
 # -----------------------------------
 # 3️⃣ Iteração do ajuste combinado
 # -----------------------------------
 while erro > tol and iteracao < max_iter:
+    
     A = np.zeros((4, 3))   # 4 equações, 3 parâmetros
     B = np.zeros((4, 8))   # 4 equações, 8 observações
     W = np.zeros(4)        # vetor de fechamento
@@ -87,7 +90,6 @@ while erro > tol and iteracao < max_iter:
     # 6️⃣ Atualização das observações ajustadas
     # -----------------------------------
     La += V  # observações ajustadas
-    print(La)
 
     # -----------------------------------
     # 7️⃣ Atualização dos parâmetros
@@ -100,6 +102,11 @@ while erro > tol and iteracao < max_iter:
     print(erro)
     iteracao += 1
 
+
+
+print(M)
+print(K)
+print(V)
 # -----------------------------------
 # 8️⃣ Resultados finais
 # -----------------------------------
@@ -186,7 +193,7 @@ while erro > tol and iteracao < max_iter:
     # -----------------------------------
     # 4️⃣ Matriz M e multiplicadores de Lagrange
     # -----------------------------------
-    M = B @ np.linalg.inv(P) @ B.T
+    M = (B @ np.linalg.inv(P)) @ B.T
     # Resolver multiplicadores: K = -M^{-1} (A X + W)
     K = -np.linalg.solve(M, A @ X_params + W)
     
@@ -199,7 +206,6 @@ while erro > tol and iteracao < max_iter:
     # 6️⃣ Atualização das observações ajustadas
     # -----------------------------------
     La += V  # observações ajustadas
-    print(La)
 
     # -----------------------------------
     # 7️⃣ Atualização dos parâmetros
@@ -212,6 +218,11 @@ while erro > tol and iteracao < max_iter:
     print(erro)
     iteracao += 1
 
+
+
+print(M)
+print(K)
+print(V)
 # -----------------------------------
 # 8️⃣ Resultados finais
 # -----------------------------------
