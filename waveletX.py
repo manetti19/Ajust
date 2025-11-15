@@ -29,13 +29,11 @@ df = pd.read_csv(
     arquivo,
     sep="\t",
     decimal=",",
-    skiprows=8,
-    encoding="latin1",
-    names=colunas
+    encoding="latin1"
 )
 
 # Ordena pelo tempo real
-df = df.sort_values("Time (s)").reset_index(drop=True)
+# df = df.sort_values("Time (s)")
 
 # -----------------------------------------------
 # 2. Selecionar e reduzir sinal
@@ -43,8 +41,16 @@ df = df.sort_values("Time (s)").reset_index(drop=True)
 
 # Aceleração no eixo X
 sinal = df["X Accel (g)"].values
-tempo = df["Time (s)"].values
+# tempo = df["Time (s)"].values
 
+# Tempo mínimo e máximo reais (do arquivo original)
+t_min = 2.964309
+t_max = 19527.994141
+
+N = 1952504
+
+# Cria eixo de tempo artificial uniformemente espaçado
+tempo = np.linspace(t_min, t_max, N)
 
 
 # -----------------------------------------------
@@ -65,15 +71,15 @@ sinal_filtrado = pywt.waverec(coef_filtrados, wavelet)
 min_len = min(len(sinal), len(sinal_filtrado))
 sinal = sinal[:min_len]
 sinal_filtrado = sinal_filtrado[:min_len]
-tempo = tempo[:min_len]
+# tempo = tempo[:min_len]
 
 # -----------------------------------------------
 # 4. Plotagem
 # -----------------------------------------------
 
-plt.figure(figsize=(12, 6))
-plt.plot(tempo, sinal, label="Sinal Original", alpha=0.4)
-plt.plot(tempo, sinal_filtrado, label="Sinal Filtrado (Wavelet)", linewidth=2)
+plt.figure(figsize=(18, 6))
+plt.plot(tempo, sinal, label="Sinal Original", alpha=0.4, linewidth=1)
+plt.plot(tempo, sinal_filtrado, label="Sinal Filtrado (Wavelet)", linewidth=1)
 plt.title("Filtragem de Ruído - X Accel (g)")
 plt.xlabel("Tempo (s)")
 plt.ylabel("Aceleração")
@@ -84,3 +90,16 @@ plt.show()
 
 print("Tempo mínimo:", tempo.min())
 print("Tempo máximo:", tempo.max())
+
+print("len tempo =", len(tempo))
+print("len sinal =", len(sinal))
+
+
+df_out = pd.DataFrame({
+    "tempo_s": tempo,
+    "x_original": sinal,
+    "x_filtrado": sinal_filtrado
+})
+
+df_out.to_csv("saida_wavelet_X.csv", index=False)
+df_out.to_csv("saida_wavelet_X.txt", sep="\t", index=False)
